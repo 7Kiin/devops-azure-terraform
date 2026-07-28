@@ -16,34 +16,39 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # 2. Autenticarse en Azure usando el secreto guardado
+    # 2. Autenticarse en Azure
     - name: Azure Login
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # 3. Configurar la versión de Terraform en la VM de GitHub
+    # 3. Configurar la versión de Terraform
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
       with:
         terraform_version: 1.5.0
 
-    # 4. Inicializar Terraform
+    # 4. Inicializar Terraform (indicando la subcarpeta)
     - name: Terraform Init
+      working-directory: ./Terraform-Azure
       run: terraform init
 
     # 5. Formatear y Validar código
     - name: Terraform Format Check
+      working-directory: ./Terraform-Azure
       run: terraform fmt -check
 
     - name: Terraform Validate
+      working-directory: ./Terraform-Azure
       run: terraform validate
 
-    # 6. Mostrar el Plan de lo que se creará/modificará
+    # 6. Mostrar el Plan
     - name: Terraform Plan
+      working-directory: ./Terraform-Azure
       run: terraform plan -no-color
 
-    # 7. Aplicar cambios automáticamente SOLO cuando se haga push a la rama 'main'
+    # 7. Aplicar cambios automáticamente en 'main'
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      working-directory: ./Terraform-Azure
       run: terraform apply -auto-approve
