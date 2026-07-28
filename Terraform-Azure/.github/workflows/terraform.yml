@@ -1,0 +1,49 @@
+name: "Terraform CI/CD Pipeline"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  terraform:
+    name: "Terraform Integration & Deployment"
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Descargar el código del repositorio
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # 2. Autenticarse en Azure usando el secreto guardado
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # 3. Configurar la versión de Terraform en la VM de GitHub
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0
+
+    # 4. Inicializar Terraform
+    - name: Terraform Init
+      run: terraform init
+
+    # 5. Formatear y Validar código
+    - name: Terraform Format Check
+      run: terraform fmt -check
+
+    - name: Terraform Validate
+      run: terraform validate
+
+    # 6. Mostrar el Plan de lo que se creará/modificará
+    - name: Terraform Plan
+      run: terraform plan -no-color
+
+    # 7. Aplicar cambios automáticamente SOLO cuando se haga push a la rama 'main'
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve
