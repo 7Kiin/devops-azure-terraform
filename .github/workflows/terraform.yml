@@ -11,12 +11,19 @@ jobs:
     name: "Terraform Integration & Deployment"
     runs-on: ubuntu-latest
 
+    # Variables de entorno extraídas de tu secreto de Azure para que Terraform se autentique
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
     steps:
     # 1. Descargar el código del repositorio
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # 2. Autenticarse en Azure
+    # 2. Autenticarse en Azure CLI
     - name: Azure Login
       uses: azure/login@v1
       with:
@@ -28,7 +35,7 @@ jobs:
       with:
         terraform_version: 1.5.0
 
-    # 4. Inicializar Terraform (indicando la subcarpeta)
+    # 4. Inicializar Terraform
     - name: Terraform Init
       working-directory: ./Terraform-Azure
       run: terraform init
