@@ -9,7 +9,7 @@ terraform {
   # Configuracion del Backend Remoto en Azure
   backend "azurerm" {
     resource_group_name  = "rg-terraform-state"
-    storage_account_name = "sttfstate14435" 
+    storage_account_name = "sttfstate14435"
     container_name       = "tfstate"
     key                  = "fase2.terraform.tfstate"
   }
