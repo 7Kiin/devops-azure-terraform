@@ -11,51 +11,58 @@ jobs:
     name: "Terraform Integration & Deployment"
     runs-on: ubuntu-latest
 
-    # Variables de entorno extraídas de tu secreto de Azure para que Terraform se autentique
-    env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-
     steps:
     # 1. Descargar el código del repositorio
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # 2. Autenticarse en Azure CLI
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    # 3. Configurar la versión de Terraform
+    # 2. Configurar la versión de Terraform
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
       with:
         terraform_version: 1.5.0
 
-    # 4. Inicializar Terraform
+    # 3. Inicializar Terraform
     - name: Terraform Init
       working-directory: ./Terraform-Azure
+      env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: terraform init
 
-    # 5. Formatear y Validar código
+    # 4. Formatear y Validar código
     - name: Terraform Format Check
       working-directory: ./Terraform-Azure
       run: terraform fmt -check
 
     - name: Terraform Validate
       working-directory: ./Terraform-Azure
+      env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: terraform validate
 
-    # 6. Mostrar el Plan
+    # 5. Mostrar el Plan
     - name: Terraform Plan
       working-directory: ./Terraform-Azure
+      env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: terraform plan -no-color
 
-    # 7. Aplicar cambios automáticamente en 'main'
+    # 6. Aplicar cambios automáticamente en 'main'
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       working-directory: ./Terraform-Azure
+      env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: terraform apply -auto-approve
